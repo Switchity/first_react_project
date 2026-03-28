@@ -4,15 +4,29 @@ const cors = require('cors');
 const app = express();
 const PORT = 5000;
 
-// Middleware
-app.use(cors()); // This allows your React app (on port 5173 or 3000) to talk to this server
-app.use(express.json()); // This allows the server to read JSON data from requests
+app.use(cors());
+app.use(express.json());
 
-// A simple test route
+// ✅ Existing route
 app.get('/api/message', (req, res) => {
-    res.json({ text: "Hello! The Node.js server is successfully connected." });
+    console.log("Node /api/message hit ✅");
+
+    res.json({
+        text: "Hello! The Node.js server is successfully connected."
+    });
+});
+
+// ✅ NEW route (used by Django)
+app.get('/api/test', (req, res) => {
+    console.log("Node /api/test hit ✅");
+
+    res.json({
+        status: "Success",
+        source: "Node.js",
+        message: "Node backend working"
+    });
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on http://localhost:${PORT} 🚀`);
 });

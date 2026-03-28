@@ -237,3 +237,8 @@ Since you are using VS Code, you can actually split the terminal screen so you c
 
 Shall we try adding a "Submit" button in React so you can send data FROM React TO Node.js?
 
+| Service  | URL                                                                    |
+| -------- | ---------------------------------------------------------------------- |
+| React    | [http://localhost:5173](http://localhost:5173)                         |
+| Django   | [http://localhost:8000](http://localhost:8000)                         |
+| Node API | [http://localhost:5000/api/message](http://localhost:5000/api/message) |

@@ -3,13 +3,14 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from django.db import transaction
 from .models import Student
+import requests
 
 
 @api_view(['POST'])
 @parser_classes([MultiPartParser])
 def upload_students(request):
     file = request.FILES.get('file')
-
+    print("file:", file)
     if not file:
         return Response({"error": "No file uploaded"}, status=400)
 
@@ -20,23 +21,19 @@ def upload_students(request):
     errors = []
 
     try:
-        with transaction.atomic():  # 🔥 ensures all-or-nothing
-
-            for i, line in enumerate(file, start=1):
+        for i, line in enumerate(file, start=1):
                 try:
                     line = line.decode('utf-8').strip()
 
                     if not line:
-                        continue  # skip empty lines
-
-                    parts = line.split(',')
-
+                        continue
+                    parts = [p.strip() for p in line.split(',')]
+                    print("parts==:", parts)
                     if len(parts) != 3:
-                        raise ValueError("Invalid format")
+                        raise ValueError("Invalid format. Expected: name,email,roll")
 
-                    name, email, roll = [p.strip() for p in parts]
-
-                    # Optional: prevent duplicates
+                    name, email, roll = parts
+                    datafame = pd.da
                     if Student.objects.filter(roll_number=roll).exists():
                         continue
 
@@ -67,3 +64,43 @@ def upload_students(request):
             "error": "File processing failed",
             "details": str(e)
         }, status=500)
+
+
+
+# ✅ 1. Basic Django test
+@api_view(['GET'])
+def get_data(request):
+    print("Django API hit ✅")
+    return Response({
+        "status": "Success",
+        "source": "Django",
+        "message": "Django working"
+    })
+
+
+# ✅ 2. Django → Node test
+@api_view(['GET'])
+def test_node(request):
+    try:
+        res = requests.get("http://localhost:5000/api/test")
+
+        return Response({
+            "django": "OK",
+            "node_response": res.json()
+        })
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
+# ✅ 3. Full chain test
+@api_view(['GET'])
+def full_chain(request):
+    try:
+        node_res = requests.get("http://localhost:5000/test")
+
+        return Response({
+            "react": "connected",
+            "django": "connected",
+            "node": node_res.json()
+        })
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
