@@ -4,13 +4,18 @@ from rest_framework.response import Response
 from django.db import transaction
 from .models import Student
 import requests
+import pandas as pd
+import uuid
+
 
 
 @api_view(['POST'])
 @parser_classes([MultiPartParser])
 def upload_students(request):
+    unique_id = str(uuid.uuid4())
     file = request.FILES.get('file')
     print("file:", file)
+
     if not file:
         return Response({"error": "No file uploaded"}, status=400)
 
@@ -19,44 +24,63 @@ def upload_students(request):
 
     success_count = 0
     errors = []
+    data_list = []   # 🔥 collect data for DataFrame
 
     try:
         for i, line in enumerate(file, start=1):
-                try:
-                    line = line.decode('utf-8').strip()
+            try:
+                line = line.decode('utf-8').strip()
 
-                    if not line:
-                        continue
-                    parts = [p.strip() for p in line.split(',')]
-                    print("parts==:", parts)
-                    if len(parts) != 3:
-                        raise ValueError("Invalid format. Expected: name,email,roll")
+                if not line:
+                    continue
 
-                    name, email, roll = parts
-                    datafame = pd.da
-                    if Student.objects.filter(roll_number=roll).exists():
-                        continue
+                parts = [p.strip() for p in line.split(',')]
+                print("parts==:", parts)
 
-                    Student.objects.create(
-                        name=name,
-                        email=email,
-                        roll_number=roll
-                    )
+                if len(parts) != 3:
+                    raise ValueError("Invalid format. Expected: name,email,roll")
 
-                    success_count += 1
+                name, email, roll = parts
 
-                except Exception as e:
-                    errors.append({
-                        "line": i,
-                        "error": str(e),
-                        "data": line
-                    })
+                # ✅ Add to list (for pandas)
+                data_list.append({
+                    "name": name,
+                    "email": email,
+                    "roll_number": roll,
+                    "batch_id": unique_id
+                })
+
+                success_count += 1
+
+            except Exception as e:
+                errors.append({
+                    "line": i,
+                    "error": str(e),
+                    "data": line
+                })
+
+        # ✅ Create DataFrame (AFTER loop)
+        df = pd.DataFrame(data_list)
+        print("DataFrame:\n", df)
+
+        # ✅ Save to DB (bulk insert - FAST)
+        students = [
+            Student(
+                name=row["name"],
+                email=row["email"],
+                roll_number=row["roll_number"]
+            )
+            for _, row in df.iterrows()
+        ]
+
+        Student.objects.bulk_create(students)
 
         return Response({
             "message": "Upload completed",
+            "batch_id": unique_id,
             "success_count": success_count,
             "error_count": len(errors),
-            "errors": errors[:5]  # limit output
+            "errors": errors[:5]
         })
 
     except Exception as e:
@@ -64,7 +88,6 @@ def upload_students(request):
             "error": "File processing failed",
             "details": str(e)
         }, status=500)
-
 
 
 # ✅ 1. Basic Django test

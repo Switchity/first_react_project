@@ -1,59 +1,81 @@
-import React, { useState } from "react";
+// src/components/FileUpload.jsx
+
+import { useState } from "react";
 import axios from "axios";
 
-export default function ApiServices() {
+function FileUpload() {
   const [file, setFile] = useState(null);
-  const [status, setStatus] = useState("");
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-    setStatus("");
-  };
-
   const handleUpload = async () => {
-    if (!file) return setStatus("Please select a file first!");
+    if (!file) {
+      alert("Select a file");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("file", file);
 
     try {
       setLoading(true);
-      const response = await axios.post("http://localhost:8000/upload/", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      setStatus(`✅ Upload successful: ${response.data.message || "File received"}`);
-      setFile(null);
+
+      const res = await axios.post(
+        "http://localhost:8000/api/upload_students/",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      setData(res.data);
+
     } catch (err) {
       console.error(err);
-      setStatus("❌ Upload failed. Check backend connection.");
+      alert("Upload failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div
-      style={{
-        color: "white",
-        padding: "100px",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "20px",
-        minHeight: "100vh",
-        background: "#02040a",
-      }}
-    >
-      <h1>Upload Your Text File 🚀</h1>
+    <div style={{ padding: "20px" }}>
+      <h2>Upload Students File</h2>
 
-      <input type="file" accept=".txt" onChange={handleFileChange} />
+      <input type="file" onChange={(e) => setFile(e.target.files[0])} />
+
+      <br /><br />
 
       <button onClick={handleUpload} disabled={loading}>
         {loading ? "Uploading..." : "Upload"}
       </button>
 
-      {status && <p>{status}</p>}
+      {/* 📊 Show Result */}
+      {data && (
+        <div style={{ marginTop: "20px" }}>
+          <h3>Upload Summary</h3>
+          <p>✅ Success: {data.success_count}</p>
+          <p>❌ Errors: {data.error_count}</p>
+
+          {/* Show errors */}
+          {data.errors?.length > 0 && (
+            <div>
+              <h4>Error Details:</h4>
+              <ul>
+                {data.errors.map((err, index) => (
+                  <li key={index}>
+                    Line {err.line}: {err.error}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
+
+export default FileUpload;

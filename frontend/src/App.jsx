@@ -97,14 +97,14 @@ function App() {
           ...styles.navbar,
           padding: scrolled ? "8px 20px" : "14px 25px",
           width: scrolled ? "90%" : "94%",
-          background: scrolled ? "rgba(19, 48, 6, 0.85)" : "rgba(255, 255, 255, 0.03)",
+          background: scrolled ? "rgba(19, 48, 6, 0.85)" : "rgba(9, 28, 1, 0.85)",
           borderColor: scrolled ? electricCyan + "44" : "rgba(255, 255, 255, 0.08)",
         }}
       >
         <div style={styles.logoContainer}>
           <div style={{ ...styles.logoIcon, boxShadow: `0 0 15px ${electricCyan}44` }}>⚡</div>
           <div style={{ ...styles.logoText, color: lightOrange }}>
-            SWITCHITY <span style={{ color: electricCyan, fontWeight: 300 }}>NETWORKS</span>
+            Switchity <span style={{ color: electricCyan, fontWeight: 300 }}>Networks</span>
           </div>
         </div>
 
@@ -193,7 +193,7 @@ function App() {
             <span style={styles.gradientText}>Automation.</span>
           </h1>
           <p style={styles.subtitle}>
-            Empowering network infrastructure with **Electric Glass** architecture. 
+            Empowering network infrastructure with Switchity flow architecture. 
             High speed. Zero friction. Pure Switchity.
           </p>
           <div style={styles.buttonGroup}>
@@ -243,7 +243,7 @@ const styles = {
     alignItems: "center",
     borderRadius: "100px",
     backdropFilter: "blur(300px)",
-    border: "1px solid rgba(255, 255, 255, 0.08)",
+    border: "1px solid rgba(49, 249, 4, 0.08)",
     transition: "0.4s cubic-bezier(0.19, 1, 0.22, 1)",
   },
   logoContainer: { display: "flex", alignItems: "center", gap: "12px", cursor: "pointer" },
